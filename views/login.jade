@@ -1,0 +1,10 @@
+extends layout
+
+block content
+  h1= title
+  form(action="http://127.0.0.1:3000/login/processLogin", method="post")
+    p username:
+      input(type="text", name="username")
+    p password:
+      input(type="text", name="password")
+    input(type="submit",value="Submit")

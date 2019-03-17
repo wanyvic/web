@@ -2,4 +2,7 @@ extends layout
 
 block content
   h1= title
-  p Welcome to #{title}
+  form(action="http://127.0.0.1:3000/processSendCoin", method="post")
+    p massgridAddress:
+      input(type="text", name="address")
+      input(type="submit",value="Submit")
