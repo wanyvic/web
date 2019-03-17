@@ -58,6 +58,7 @@ module.exports = {
 				dbo.collection("massgrid").deleteOne(whereStr, function(err, res) {
 					if (err) throw err;
 					console.log("address delete successful");
+					res.json({result:false})
 					db.close();
 				});
 			});
@@ -97,13 +98,10 @@ module.exports = {
 
 				if (err) throw err;
 				var dbo = db.db("massgrid");
-				dbo.collection("massgrid").find({}, function(err, result) {
+				dbo.collection("massgrid").find({}).toArray(function(err, result)  {
 					if (err) throw err;
-					console.log("address find successful");
-					res.render('list',{
-						title:'列表页',
-						result:result
-					});
+					console.log("address find successful",result);
+					res.json(result);
 					db.close();
 				});
 			});
