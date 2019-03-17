@@ -1,11 +1,8 @@
 var express = require('express');
 var router = express.Router();
-var MongoClient = require('mongodb').MongoClient;
-var Long = require('mongodb').Long;
-var url = "mongodb://localhost:27017/runoob";
 var base58Check = require('base58-native').base58Check;
-var bitcoin_rpc = require('node-bitcoin-rpc')
-bitcoin_rpc.init('localhost', 19442, 'massgrid', 'massgridpassword')
+var userDao = require('../dao/userDao');
+var massgridrpc = require('../dao/massgridrpc');
 /* GET home page. */
 router.get('/', function(req, res, next) {
   res.render('index', { title: 'MassGrid' });

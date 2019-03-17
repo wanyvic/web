@@ -1,16 +1,6 @@
-//- extends layout
+extends layout
 
-//- block content
-
-doctype html
-html
-    head
-        title #{title}
-        link(rel='stylesheet', href='/libs/bootstrap/dist/css/bootstrap.min.css')
-        script(src='/libs/jquery/dist/jquery.min.js')
-        script(src='/libs/bootstrap/dist/js/bootstrap.min.js')
-    body
-        block content
+block content
   h1= title
   form(action="http://127.0.0.1:3000/admin/processInsert", method="post")
     p massgridaddress:
