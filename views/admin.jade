@@ -1,277 +1,288 @@
-//- extends layout
-
-//- block content
 doctype html
-html
-  head
-    meta(charset='utf-8')
-    meta(http-equiv='X-UA-Compatible', content='IE=edge')
-    title DataTable
-    meta(name='description', content='')
-    meta(name='viewport', content='width=device-width, initial-scale=1')
-    script(src='https://cdn.bootcss.com/jquery/3.3.1/jquery.js')
-    link(href='https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css', rel='stylesheet')
-    script(src='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js')
-    link(rel='stylesheet', type='text/css', href='https://cdn.datatables.net/1.10.16/css/jquery.dataTables.min.css')
-    script(src='https://cdn.bootcss.com/datatables/1.10.16/js/jquery.dataTables.js')
-    style.
-      .content {
-      margin: 50px auto;
-      border: 1px solid #ccc;
-      }
-      .operation {
-      margin: 10px;
-      }
-      .operation>button {
-      margin: 10px;
-      }
-      #books_length {
-      float: left;
-      margin-left: 20px;
-      }
-      #books_filter {
-      float: right;
-      margin-right: 20px;
-      }
-      #books {
-      margin: 5px;
-      }
-      .center-block {
-      display: block;
-      width: 21%;
-      margin: auto;
-      }
-  body
-    section.content
-      .btn-group.operation
-        button#btn_add.btn.bg-primary(type='button')
-          span.glyphicon.glyphicon-plus(aria-hidden='true')
-          | 新增
-        button#btn_edit.btn.bg-info(type='button')
-          span.glyphicon.glyphicon-pencil(aria-hidden='true')
-          | 修改
-        button#btn_delete.btn.btn-success(type='button')
-          span.glyphicon.glyphicon-remove(aria-hidden='true')
-          | 删除
-      #addBook.modal.fade(role='dialog')
-        .modal-dialog
-          .modal-content
-            .modal-header
-              button.close(type='button', data-dismiss='modal') ×
-              h4.modal-title 添加图书
-            #addBookModal.modal-body
-              .form-horizontal
-                .form-group
-                  label.col-sm-2.control-label(for='bookName') wechat:*
-                  .col-sm-10
-                    input#bookName.form-control(type='text')
-                .form-group
-                  label.col-sm-2.control-label(for='bookAuthor') address:*
-                  .col-sm-10
-                    input#bookAuthor.form-control(type='text')
-                .form-group
-                  label.col-sm-2.control-label(for='bookPrice') timestamp:*
-                  .col-sm-10
-                    input#bookPrice.form-control(type='text')
-            .modal-footer
-              .center-block
-                button#cancelAdd.btn.btn-default(type='button', data-dismiss='modal') 取消
-                button#addBooksInfo.btn.btn-success(type='button', data-dismiss='modal') 保存
-      #editBookInfo.modal.fade(role='dialog')
-        .modal-dialog
-          .modal-content
-            .modal-header
-              button.close(type='button', data-dismiss='modal') ×
-              h4.modal-title 修改地址
-            #editBookModal.modal-body
-              .form-horizontal
-                .form-group
-                  label.col-sm-2.control-label(for='editBookName') wechat:*
-                  .col-sm-10
-                    input#editBookName.form-control(type='text')
-                .form-group
-                  label.col-sm-2.control-label(for='editBookAuthor') address:*
-                  .col-sm-10
-                    input#editBookAuthor.form-control(type='text')
-                .form-group
-                  label.col-sm-2.control-label(for='editBookPrice') timestamp:*
-                  .col-sm-10
-                    input#editBookPrice.form-control(type='text')
-            .modal-footer
-              .center-block
-                button#cancelEdit.btn.btn-default(type='button', data-dismiss='modal') 取消
-                button#saveEdit.btn.btn-success(type='button', data-dismiss='modal') 保存
-      #deleteBook.modal.fade(role='dialog')
-        .modal-dialog
-          .modal-content
-            .modal-header
-              button.close(type='button', data-dismiss='modal') ×
-              h4.modal-title 确认要删除吗？
-            .modal-footer
-              button.btn.btn-default(type='button', data-dismiss='modal') 取消
-              button#delete.btn.btn-danger(type='button', data-dismiss='modal') 删除
-      table#books.table.table-striped.table-bordered.row-border.hover.order-column(cellspacing='0', width='100%')
-        thead
-          tr
-            th index
-            th wechat
-            th address
-            th timestamp
-        tbody
-    script.
-      var data = new Array()
-       $.ajax({
-                type: "POST",
-                url: "./admin/processdata",
-                dataType: "json",
-                dat: { },
-                success: function (dat, msg) {
-                  for(let index in dat){
-                    var d =[['',dat[index].wechat,dat[index].address,dat[index].timestamp]];
-                    data = data.concat(d)
-                  }
-                  console.log(data)
-                  tableinit()
+html(lang='en')
+    head
+        // Required meta tags
+        meta(charset='utf-8')
+        meta(name='viewport', content='width=device-width, initial-scale=1, shrink-to-fit=no')
+        link(rel='stylesheet', href='https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css', integrity='sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS', crossorigin='anonymous')
+        link(rel='stylesheet', href='https://use.fontawesome.com/releases/v5.6.3/css/all.css', integrity='sha384-UHRtZLI+pbxtHCWp1t77Bi1L4ZtiqrqD80Kn4Z8NTSRyMA2Fd33n5dQ8lWUE00s/', crossorigin='anonymous')
+        link(rel='stylesheet', href='https://unpkg.com/bootstrap-table@1.14.1/dist/bootstrap-table.min.css')
+        title Hello, Bootstrap Table!
+        style.
+            .content {
+            margin: 50px auto;
+            border: 1px solid #ccc;
+            }
+            .operation {
+            margin: 10px;
+            }
+            .operation>button {
+            margin: 10px;
+            }
+            #books_length {
+            float: left;
+            margin-left: 20px;
+            }
+            #books_filter {
+            float: right;
+            margin-right: 20px;
+            }
+            #books {
+            margin: 5px;
+            }
+            .center-block {
+            display: block;
+            width: 21%;
+            margin: auto;
+            }
+    body
+        section.content
+            .btn-group.operation
+                button#btn_add.btn.bg-primary(type='button')
+                    span.glyphicon.glyphicon-plus(aria-hidden='true')
+                    | 新增
+                button#btn_edit.btn.bg-info(type='button')
+                    span.glyphicon.glyphicon-pencil(aria-hidden='true')
+                    | 修改
+                button#btn_delete.btn.btn-success(type='button')
+                    span.glyphicon.glyphicon-remove(aria-hidden='true')
+                    | 删除
+            #addAddress.modal.fade(role='dialog')
+                .modal-dialog
+                    .modal-content
+                        .modal-header
+                            button.close(type='button', data-dismiss='modal') ×
+                            h4.modal-title 添加地址
+                        #addAddressModal.modal-body
+                            .form-horizontal
+                                .form-group
+                                    label.col-sm-2.control-label(for='wechat') wechat:*
+                                    .col-sm-10
+                                        input#wechat.form-control(type='text')
+                                .form-group
+                                    label.col-sm-2.control-label(for='address') address:*
+                                    .col-sm-10
+                                        input#address.form-control(type='text')
+                        .modal-footer
+                            .center-block
+                                button#cancelAdd.btn.btn-default(type='button', data-dismiss='modal') 取消
+                                button#addAddresssInfo.btn.btn-success(type='button', data-dismiss='modal') 保存
+            #editAddressInfo.modal.fade(role='dialog')
+                .modal-dialog
+                    .modal-content
+                        .modal-header
+                            button.close(type='button', data-dismiss='modal') ×
+                         h4.modal-title 修改地址
+                        #editAddressModal.modal-body
+                            .form-horizontal
+                                .form-group
+                                    label.col-sm-2.control-label(for='editwechat') wechat:*
+                                    .col-sm-10
+                                        input#editwechat.form-control(type='text')
+                                .form-group
+                                    label.col-sm-2.control-label(for='editaddress') address:*
+                                    .col-sm-10
+                                        input#editaddress.form-control(type='text')
+                                .form-group
+                                    label.col-sm-2.control-label(for='edittimestamp') timestamp:*
+                                    .col-sm-10
+                                        input#edittimestamp.form-control(type='text')
+                        .modal-footer
+                            .center-block
+                                button#cancelEdit.btn.btn-default(type='button', data-dismiss='modal') 取消
+                                button#saveEdit.btn.btn-success(type='button', data-dismiss='modal') 保存
+            #deleteAddress.modal.fade(role='dialog')
+                .modal-dialog
+                    .modal-content
+                        .modal-header
+                            button.close(type='button', data-dismiss='modal') ×
+                            h4.modal-title 确认要删除吗？
+                        .modal-footer
+                            button.btn.btn-default(type='button', data-dismiss='modal') 取消
+                            button#delete.btn.btn-danger(type='button', data-dismiss='modal') 删除
+            table#table.table.table-striped.table-bordered.row-border.hover.order-column(cellspacing='0', width='100%')
+        script(src='https://code.jquery.com/jquery-3.3.1.min.js', integrity='sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=', crossorigin='anonymous')
+        script(src='https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.6/umd/popper.min.js', integrity='sha384-wHAiFfRlMFy6i5SRaxvfOCifBUQy1xHdJ/yoi7FRNXMRBu5WHdZYu1hA6ZOblgut', crossorigin='anonymous')
+        script(src='https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js', integrity='sha384-B0UglyR+jN6CkvvICOB2joaf5I4l3gm9GU6Hc1og6Ls7i6U/mkkaduKaBhlAXv9k', crossorigin='anonymous')
+        script(src='https://unpkg.com/bootstrap-table@1.14.1/dist/bootstrap-table.min.js')
+        script.
+            var table = $('#table')
+            table.bootstrapTable({
+            //- method: 'POST',
+            //- dataType: 'json',
+            //- url: '/admin/processdata',
+            pagination: true,
+            ajax:function(request) {
+              $.ajax({
+                url:"./admin/processdata",
+                type:"POST",
+                dataType:"json",
+                data:{
+                  value:"hot",
+                  order:"asc"
+                },
+                success:function(data){
+                    console.log(data);
+                  request.success({
+                    //- total = data.total;
+                    //- row = data.rows;
+                  });
+                  $('#table').bootstrapTable('load', data);
+                },
+                error:function(error){
+                    console.log(error);
                 }
-       })
-      var titles = ['wechat', 'address', 'timestamp']
-      var tableinit = function () {
-      var table = $('#books').DataTable({
-      data: data,
-      "pagingType": "full_numbers",
-      "bSort": true,
-      "language": {
-      "sProcessing": "处理中...",
-      "sLengthMenu": "显示 _MENU_ 项结果",
-      "sZeroRecords": "没有匹配结果",
-      "sInfo": "显示第 _START_ 至 _END_ 项结果，共 _TOTAL_ 项",
-      "sInfoEmpty": "显示第 0 至 0 项结果，共 0 项",
-      "sInfoFiltered": "(由 _MAX_ 项结果过滤)",
-      "sInfoPostFix": "",
-      "sSearch": "搜索:",
-      "sUrl": "",
-      "sEmptyTable": "表中数据为空",
-      "sLoadingRecords": "载入中...",
-      "sInfoThousands": ",",
-      "oPaginate": {
-      "sFirst": "首页",
-      "sPrevious": "上页",
-      "sNext": "下页",
-      "sLast": "末页"
-      },
-      "oAria": {
-      "sSortAscending": ": 以升序排列此列",
-      "sSortDescending": ": 以降序排列此列"
-      }
-      },
-      "columnDefs": [{
-      "searchable": false,
-      "orderable": true,
-      "targets": 0
-      }],
-      "order": [[1, 'asc']]
-      });
-      table.on('order.dt search.dt', function() {
-      table.column(0, {
-      search: 'applied',
-      order: 'applied'
-      }).nodes().each(function(cell, i) {
-      cell.innerHTML = i;
-      });
-      }).draw();
-      $('#books tbody').on('click', 'tr', function () {
-      if ( $(this).hasClass('selected') ) {
-      $(this).removeClass('selected');
-      }
-      else {
-      table.$('tr.selected').removeClass('selected');
-      $(this).addClass('selected');
-      }
-      });
-      $("#cancelAdd").on('click', function() {
-      console.log('cancelAdd');
-      $("#addBookModal").find('input').val('')
-      })
-      $("#addBooksInfo").on('click', function() {
-      console.log('addBooksInfo');
-      if (data.length) {
-      if ($("#addBookModal").find('input').val() !== '') {
-      var massgridaddress = $("#bookName").val()
-      var wechat = $("#bookAuthor").val()
-      
-      console.log(massgridaddress);
-      
-      var addBookInfos = new Array();
-      $.ajax({
-                type: "POST",
-                url: "./admin/processInsert",
-                dataType: "json",
-                data: {massgridaddress:massgridaddress,
-                      wechat:wechat },
-                success: function (data, msg) {
-                  console.log('aaaaa',data['result'])
-                  if(data.result == true)
-                    addBookInfos = [].concat(massgridaddress, massgridaddress, 0);
+              })
+            },
+            clickToSelect:true,
+            height:700,
+            search: true,
+            columns: [{
+            field:'state',
+            checkbox:true
+            },{
+            field: 'wechat',
+            title: 'WeChat'
+            }, {
+            field: 'address',
+            title: 'WalletAddress'
+            }, {
+            field: 'timestamp',
+            title: 'Last Send Time'
+            }, ],
+            "pagingType": "full_numbers",
+            "bSort": true,
+            "language": {
+                "sProcessing": "处理中...",
+                "sLengthMenu": "显示 _MENU_ 项结果",
+                "sZeroRecords": "没有匹配结果",
+                "sInfo": "显示第 _START_ 至 _END_ 项结果，共 _TOTAL_ 项",
+                "sInfoEmpty": "显示第 0 至 0 项结果，共 0 项",
+                "sInfoFiltered": "(由 _MAX_ 项结果过滤)",
+                "sInfoPostFix": "",
+                "sSearch": "搜索:",
+                "sUrl": "",
+                "sEmptyTable": "表中数据为空",
+                "sLoadingRecords": "载入中...",
+                "sInfoThousands": ",",
+                "oPaginate": {
+                "sFirst": "首页",
+                "sPrevious": "上页",
+                "sNext": "下页",
+                "sLast": "末页"
+                },
+                "oAria": {
+                "sSortAscending": ": 以升序排列此列",
+                "sSortDescending": ": 以降序排列此列"
                 }
-       })
+            },
+            "columnDefs": [{
+            "searchable": false,
+            "orderable": true,
+            "targets": 0
+            }],
+            "order": [[1, 'asc']]
+            });
+            $(this).on('order.dt search.dt', function() {
+            $(this).column(0, {
+            search: 'applied',
+            order: 'applied'
+            }).nodes().each(function(cell, i) {
+            cell.innerHTML = i;
+            });
+            });
 
-      for (var i = 0; i < addBookInfos.length; i++) {
-      if (addBookInfos[i] === '') {
-      alert(titles[i] + '内容不能为空')
-      }
-      }
-      table.row.add(['', massgridaddress, massgridaddress, 0]).draw();
-      $("#addBookModal").find('input').val('')
-      }
-      } else {
-      alert('请输入内容')
-      }
-      })
-      $("#addBooksInfo").click();
-      $("#btn_add").click(function(){
-      console.log('add');
-      $("#addBook").modal()
-      });
-      $('#btn_edit').click(function () {
-      console.log('edit');
-      if (table.rows('.selected').data().length) {
-      $("#editBookInfo").modal()
-      var rowData = table.rows('.selected').data()[0];
-      var inputs = $("#editBookModal").find('input')
-      for (var i = 0; i < inputs.length; i++) {
-      $(inputs[i]).val(rowData[i + 1])
-      }
-      } else {
-      alert('请选择项目');
-      }
-      });
-      $("#saveEdit").click(function() {
-      var editBookName = $("#editBookName").val()
-      var editBookAuthor = $("#editBookAuthor").val()
-      var editBookPrice = $("#editBookPrice").val()
-      var newRowData = [].concat(editBookName, editBookAuthor, editBookPrice);
-      var tds = Array.prototype.slice.call($('.selected td'))
-      for (var i = 0; i < newRowData.length; i++) {
-      if (newRowData[i] !== '') {
-      tds[i + 1].innerHTML = newRowData[i];
-      } else {
-      alert(titles[i] + '内容不能为空')
-      }
-      }
-      })
-      $("#cancelEdit").click(function() {
-      console.log('cancelAdd');
-      $("#editBookModal").find('input').val('')
-      })
-      $('#btn_delete').click(function () {
-      if (table.rows('.selected').data().length) {
-      $("#deleteBook").modal()
-      } else {
-      alert('请选择项目');
-      }
-      });
-      $('#delete').click(function () {
-      table.row('.selected').remove().draw(false);
-      });
-      }
+            $('#table tbody').on('click', 'tr', function () {
+                if ( $(this).hasClass('selected') ) {
+                    $(this).removeClass('selected');
+                }
+                else {
+                    $('tr.selected').removeClass('selected');
+                    $(this).addClass('selected');
+                }
+            });
 
+            $("#cancelAdd").on('click', function() {
+                console.log('cancelAdd');
+                $("#addAddressModal").find('input').val('')
+            });
+
+            $("#addAddresssInfo").on('click', function() {
+                if ($("#addAddressModal").find('input').val() !== '') {
+                    var wechat = $("#wechat").val()
+                    var address = $("#address").val()
+                    if (wechat !== '' && address !== '') {
+                        console.log('wechat: '+ wechat+ 'address: '+address);
+                        $.ajax({
+                                type: "POST",
+                                url: "./admin/processInsert",
+                                dataType: "json",
+                                data: {
+                                    wechat:wechat,
+                                    address:address},
+                                success: function (data, msg) {
+                                    console.log(data,msg)
+                                    if(!data.code){
+                                        table.bootstrapTable('refresh')
+                                       }
+                                    else{
+                                        alert(data.result?'true':'false');
+                                    }
+                                }
+                            });
+                    }
+                } else {
+                    alert('请输入内容')
+                }
+            });
+
+            $("#btn_add").click(function(){
+                console.log('add');
+                $("#addAddress").modal()
+            });
+
+            $('#btn_edit').click(function () {
+                console.log('edit');
+                if (table.rows('.selected').data().length) {
+                    $("#editAddressInfo").modal()
+                    var rowData = table.rows('.selected').data()[0];
+                    var inputs = $("#editAddressModal").find('input')
+                    for (var i = 0; i < inputs.length; i++) {
+                        $(inputs[i]).val(rowData[i + 1])
+                    }
+                } else {
+                    alert('请选择项目');
+                }
+            });
+        
+            $("#saveEdit").click(function() {
+                var editAddressName = $("#editAddressName").val()
+                var editAddressAuthor = $("#editAddressAuthor").val()
+                var editAddressPrice = $("#editAddressPrice").val()
+                var newRowData = [].concat(editAddressName, editAddressAuthor, editAddressPrice);
+                var tds = Array.prototype.slice.call($('.selected td'))
+                for (var i = 0; i < newRowData.length; i++) {
+                    if (newRowData[i] !== '') {
+                        tds[i + 1].innerHTML = newRowData[i];
+                    } else {
+                        alert(titles[i] + '内容不能为空')
+                    }
+                }
+            })
+
+            $("#cancelEdit").click(function() {
+                console.log('cancelAdd');
+                $("#editAddressModal").find('input').val('')
+            });
+
+            $('#btn_delete').click(function () {
+                if (table.rows('.selected').data().length) {
+                    $("#deleteAddress").modal()
+                } else {
+                    alert('请选择项目');
+                }
+            });
+
+            $('#delete').click(function () {
+                table.row('.selected').remove().draw(false);
+            });

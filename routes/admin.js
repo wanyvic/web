@@ -5,7 +5,7 @@ var massgridrpc = require('../dao/massgridrpc');
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
-    console.log(req.session.user)      
+    console.log(req.session.user);
     if(!req.session.user){               //到达/home路径首先判断是否已经登录
         req.session.error = "请先登录"
         res.redirect("/login");                //未登录则重定向到 /login 路径
@@ -14,23 +14,26 @@ router.get('/', function(req, res, next) {
 
 });
 router.post('/processInsert', function(req, res) {
-    console.log(req.massgridaddress,req.session.user)      
+    var data = {
+        'address':req.body.address,
+        'wechat':req.body.wechat
+    }
+    console.log('processInsert',data);
     if(!req.session.user){               //到达/home路径首先判断是否已经登录
         req.session.error = "请先登录"
         res.redirect("/login");                //未登录则重定向到 /login 路径
     }
-    var data = {
-        'address':req.body.massgridaddress,
-        'wechat':req.body.wechat
-    }
-    if(userDao.insertAddress(data,res) && massgridrpc.setaccount(data,res)){
-        console.log('insert successful '); //set account
-        res.json({result:true})
-    }
-        res.json({result:false})
+
+    massgridrpc.importaddress(data,res,
+            function(req,res){
+                userDao.insertAddress(req,res,function(req,res){
+            res.json({code:0,msg:'insert successful'})
+            });
+        });
+
 });
 router.post('/processdata', function(req, res) {
-    console.log(req.session.user)      
+    console.log(req.session.user);
     if(!req.session.user){               //到达/home路径首先判断是否已经登录
         req.session.error = "请先登录"
         res.redirect("/login");                //未登录则重定向到 /login 路径

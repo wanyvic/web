@@ -17,11 +17,11 @@ var jsonWrite = function (res, ret) {
 
 module.exports = {
 	insertAddress: function (req, res, next) {
+        console.log('insertAddress start');
 		var param = req;
-		console.log(param);
 		if(param.address == null || param.wechat == null) {
-			jsonWrite(res, undefined);
-			return false;
+            res,json({code:1,msg:'require address and wechat name'});
+			return;
 		}
 		var addr ={'address': param.address,
         'wechat' : param.wechat,
@@ -33,16 +33,16 @@ module.exports = {
 				var whereStr = {'address': param.address};  // 查询条件
 				var updateStr = {$set: addr};
 				dbo.collection("massgrid").updateOne(whereStr, updateStr,{upsert:true}, function(err, res) {
-					if (err) throw err;
-					console.log("address insert successful");
+                    if (err) throw err;
+					console.log("mongo address insert successful");
 					db.close();
 				});
 			});
 		} catch (error) {
-			return false;
-		}
-		return true;
-	},
+            res.json({code:2,msg:error});
+        }
+        next(req,res);
+    },
 	delete: function (req, res, next) {
 		var param = req;
 		console.log(param);
@@ -56,43 +56,25 @@ module.exports = {
 				var dbo = db.db("massgrid");
 				var whereStr = {'address': param.address};  // 查询条件
 				dbo.collection("massgrid").deleteOne(whereStr, function(err, res) {
-					if (err) throw err;
+                    if (err) throw err;
+                    jsonWrite(res,{
+                        code:0,
+                        msg: 'deleteAddress success'
+                    });
 					console.log("address delete successful");
 					res.json({result:false})
 					db.close();
 				});
 			});
 		} catch (error) {
-			return false;
-		}
-		return true;
-	},
-	find: function(req, res, next) {
-		var param = req.body;
-		console.log(param);
-		if(param.address == null) {
-			jsonWrite(res, undefined);
-			return false;
-		}
-		try {
-			var addr ={'address': param.address};
-			MongoClient.connect(url, function(err, db) {
-				if (err) throw err;
-				var dbo = db.db("massgrid");
-				dbo.collection("massgrid"). find(addr).toArray(function(err, result) { // 返回集合中所有数据
-					if (err) throw err;
-					db.close();
-					if(result.length)
-					SendCoin(result);
-				});	
-			});
-		} catch (error) {
-			return false;
+            jsonWrite(res,{
+            code:5,
+            msg: 'deleteAddress failed: '+error.error
+        });
 		}
 		return true;
 	},
 	queryAll: function (req, res, next) {
-
 		try {
 			MongoClient.connect(url, function(err, db) {
 
@@ -100,13 +82,17 @@ module.exports = {
 				var dbo = db.db("massgrid");
 				dbo.collection("massgrid").find({}).toArray(function(err, result)  {
 					if (err) throw err;
-					console.log("address find successful",result);
-					res.json(result);
+					var data = {'total':result.length,'rows':result};
+					res.json(data);
+					console.log("address find successful",data);
 					db.close();
 				});
 			});
 		} catch (error) {
-			return false;
+            jsonWrite(res,{
+            code:6,
+            msg: 'queryAll failed: '+error.error
+        });
 		}
 		return true;
 	}
