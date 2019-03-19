@@ -10,5 +10,9 @@ module.exports = {
     },
     sendAmount: {
         amount :1000
+    },
+    users:{
+        user:'wany',
+        pwd:'123456'
     }
 };

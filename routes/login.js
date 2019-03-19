@@ -1,5 +1,6 @@
 var express = require('express');
 var router = express.Router();
+var user = require('../conf/conf').users;
 
 /* GET login listing. */
 router.get('/', function(req, res, next) {
@@ -7,7 +8,7 @@ router.get('/', function(req, res, next) {
 });
 router.post('/processLogin', function(req, res) {
   console.log(req.body.username,req.body.password)
-  if(req.body.username =="wany" && req.body.password == "123456"){
+  if(req.body.username ==user.user && req.body.password == user.pwd){
     req.session.user = req.body.username;
     res.redirect('../admin');
     return;

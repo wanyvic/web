@@ -35,6 +35,9 @@ html(lang='en')
             width: 21%;
             margin: auto;
             }
+            .modal-title{
+            text-align:center;
+            }
     body
         section.content
             .btn-group.operation
@@ -52,7 +55,7 @@ html(lang='en')
                     .modal-content
                         .modal-header
                             button.close(type='button', data-dismiss='modal') ×
-                            h4.modal-title 添加地址
+                        h4.modal-title 添加地址
                         #addAddressModal.modal-body
                             .form-horizontal
                                 .form-group
@@ -64,9 +67,8 @@ html(lang='en')
                                     .col-sm-10
                                         input#wechat.form-control(type='text')
                         .modal-footer
-                            .center-block
-                                button#cancelAdd.btn.btn-default(type='button', data-dismiss='modal') 取消
-                                button#addAddresssInfo.btn.btn-success(type='button', data-dismiss='modal') 保存
+                            button#cancelAdd.btn.bg-info(style='display:inline-block;', type='button', data-dismiss='modal') 取消
+                            button#addAddresssInfo.btn.btn-success(style='display:inline-block;',type='button', data-dismiss='modal') 保存
             #editAddressInfo.modal.fade(role='dialog')
                 .modal-dialog
                     .modal-content
@@ -88,17 +90,29 @@ html(lang='en')
                                     .col-sm-10
                                         input#edittimestamp.form-control(type='text')
                         .modal-footer
+                            button#cancelEdit.btn.bg-info(type='button', data-dismiss='modal') 取消
+                            button#saveEdit.btn.btn-success(type='button', data-dismiss='modal') 保存
+            #timeInfo.modal.fade(role='dialog')
+                .modal-dialog
+                    .modal-content(style="height:800px")
+                        .modal-header
+                            button.close(type='button', data-dismiss='modal') ×
+                        h4.modal-title
+                            | 充值详情
+                        #timeInfoModal.modal-body
+                            .form-horizontal
+                                .form-group
+                                    table#tableInfo.table.table-striped.table-bordered.row-border.hover.order-column(cellspacing='0', width='100%')
+                        .modal-footer
                             .center-block
-                                button#cancelEdit.btn.btn-default(type='button', data-dismiss='modal') 取消
-                                button#saveEdit.btn.btn-success(type='button', data-dismiss='modal') 保存
+                                button#cancelEdit.btn.btn-success(type='button', data-dismiss='modal') OK
             #deleteAddress.modal.fade(role='dialog')
                 .modal-dialog
                     .modal-content
                         .modal-header
                             button.close(type='button', data-dismiss='modal') ×
-                            h4.modal-title 确认要删除吗？
-                        .modal-footer
-                            button.btn.btn-default(type='button', data-dismiss='modal') 取消
+                        h4.modal-title 确认要删除吗？
+                            button.btn.bg-info(type='button', data-dismiss='modal') 取消
                             button#delete.btn.btn-danger(type='button', data-dismiss='modal') 删除
             table#table.table.table-striped.table-bordered.row-border.hover.order-column(cellspacing='0', width='100%')
         script(src='https://code.jquery.com/jquery-3.3.1.min.js', integrity='sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=', crossorigin='anonymous')
@@ -106,6 +120,39 @@ html(lang='en')
         script(src='https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js', integrity='sha384-B0UglyR+jN6CkvvICOB2joaf5I4l3gm9GU6Hc1og6Ls7i6U/mkkaduKaBhlAXv9k', crossorigin='anonymous')
         script(src='https://unpkg.com/bootstrap-table@1.14.1/dist/bootstrap-table.min.js')
         script.
+            window.operateEvents = {
+                'click .RoleOfedit': function (e, value, row, index) {
+                    if(!row.times)
+                        alert('no record');
+                    var rows = new Array();
+                    for(var i=0;i<row.times.length;++i){
+                        var obj = {'time':row.times[i]};
+                        rows.push(obj);
+                    }
+                    var dataa = {'total':row.times.length,'rows':rows};
+                    console.log(dataa);
+                    $("#timeInfo").modal();
+                    $('#tableInfo').bootstrapTable({
+                        height:600,
+                        width:40,
+                        data: dataa,
+                        columns:[{
+                            title: 'index',
+                            field: '',
+                            formatter: function (value, row, index) {
+                                return index+1;
+                                }
+                            }, {
+                            field: 'time',
+                            title: 'time',
+                            formatter : function(value, row, index) {
+                                return new Date(row.time).toLocaleString()
+                            }
+                        }]
+                    });
+                    $('#tableInfo').bootstrapTable('load', dataa);
+                }
+            }
             var table = $('#table')
             table.bootstrapTable({
             pagination: true,
@@ -132,7 +179,7 @@ html(lang='en')
                 });
             },
             clickToSelect:true,
-            height:700,
+            height: 800,
             search: true,
             columns: [{
                 field: 'address',
@@ -142,7 +189,17 @@ html(lang='en')
                 title: 'WeChat'
                 }, {
                 field: 'timestamp',
-                title: 'Last Send Time'
+                title: 'Last Send Time',
+                formatter : function(value, row, index) {
+                    return new Date(row.timestamp).toLocaleString()
+                    }
+                }, {
+                field: 'detail',
+                title: 'detail',
+                events: operateEvents,
+                formatter : function(value, row, index) {
+                    return ['<button type="button" class="RoleOfedit btn btn-primary  btn-sm" style="margin-right:15px;">查看</button>'].join('');
+                    }
             }],
             "pagingType": "full_numbers",
             "bSort": true,
@@ -235,13 +292,17 @@ html(lang='en')
                 console.log('add');
                 $("#addAddress").modal()
             });
+            $(".RoleOfedit").click(function(){
+                console.log('RoleOfedit');
+                //- $("#addAddress").modal()
+            });
 
             $('#btn_edit').click(function () {
                 console.log('edit');
                 if ($('#table .selected').length) {
                     $('#editaddress').val($('#table .selected')[0].cells[0].innerHTML);
                     $('#editwechat').val($('#table .selected')[0].cells[1].innerHTML);
-                    $('#edittimestamp').val($('#table .selected')[0].cells[2].innerHTML);
+                    $('#edittimestamp').val(new Date().getTime() + 2 * 24 * 3600 * 1000);
                     $("#editAddressInfo").modal()
                 } else {
                     alert('请选择项目');
@@ -309,3 +370,4 @@ html(lang='en')
                     }
                 });
             });
+

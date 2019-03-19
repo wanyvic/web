@@ -40,7 +40,9 @@ router.post('/processSendCoin', function(req, res) {
                 'timestamp':new Date().getTime()
             };
             userDao.insertAddress(param2,res,function (req,res) {
-                res.json({code:0,msg:'sendtoaddress successful'});
+                userDao.insertTime(param2,res,function (req,res) {
+                    res.json({code:0,msg:'sendtoaddress successful'});
+                });
             });
         });
     });

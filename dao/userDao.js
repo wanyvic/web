@@ -10,7 +10,7 @@ module.exports = {
 		if(param.address == null || param.wechat == null) {
             res.json({code:1,msg:'require address and wechat name'});
 			return;
-		}
+        }
 		try {
             var addr ={
                 'address': param.address,
@@ -21,10 +21,39 @@ module.exports = {
 				if (err) throw err;
 				var dbo = db.db("massgrid");
 				var whereStr = {'address': param.address};  // 查询条件
-				var updateStr = {$set: addr};
+                var updateStr = {$set: addr};
 				dbo.collection("massgrid").updateOne(whereStr, updateStr,{upsert:true}, function(err, res) {
                     if (err) throw err;
 					console.log("mongo address insert successful");
+					db.close();
+				});
+			});
+		} catch (error) {
+            res.json({code:2,msg:error});
+            return;
+        }
+        if(next)
+            next(req,res);
+    },
+    insertTime: function (req, res, next) {
+        console.log('insertTime start',req);
+		var param = req;
+		if(param.address == null || param.timestamp == null) {
+            res.json({code:1,msg:'require address'});
+			return;
+        }
+		try {
+            var time ={
+                'times': Long.fromNumber(param.timestamp)
+                };
+			MongoClient.connect(url, function(err, db) {
+				if (err) throw err;
+				var dbo = db.db("massgrid");
+				var whereStr = {'address': param.address};  // 查询条件
+                var updateStr = {$addToSet: time};
+				dbo.collection("massgrid").updateOne(whereStr, updateStr,{upsert:true}, function(err, res) {
+                    if (err) throw err;
+					console.log("mongo insert time successful");
 					db.close();
 				});
 			});
