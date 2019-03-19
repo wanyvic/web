@@ -10,6 +10,7 @@ router.post('/processLogin', function(req, res) {
   if(req.body.username =="wany" && req.body.password == "123456"){
     req.session.user = req.body.username;
     res.redirect('../admin');
+    return;
   }
   res.redirect('../');
 });

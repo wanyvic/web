@@ -7,5 +7,8 @@ module.exports = {
 		port: 19442,
 		rpcuser: 'massgrid',
 		rpcpassword: 'massgridpassword'
-	}
+    },
+    sendAmount: {
+        amount :1000
+    }
 };

@@ -1,42 +1,68 @@
 var express = require('express');
 var router = express.Router();
 var userDao = require('../dao/userDao');
-var massgridrpc = require('../dao/massgridrpc');
+var base58Check = require('base58-native').base58Check;
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
     console.log(req.session.user);
-    if(!req.session.user){               //到达/home路径首先判断是否已经登录
-        req.session.error = "请先登录"
-        res.redirect("/login");                //未登录则重定向到 /login 路径
+    if(!req.session.user){;
+        req.session.error = "login in first"
+        res.redirect("/login");
+        return;
     }
     res.render('admin', { title: 'MassGrid' });
 
 });
 router.post('/processInsert', function(req, res) {
+    try {
+        base58Check.decode(req.body.address);
+    } catch (error) {
+        console.log("not base58 address");
+        res.json({code:1,msg:'address invailed'});
+        return;
+    }
     var data = {
         'address':req.body.address,
-        'wechat':req.body.wechat
+        'wechat':req.body.wechat,
+        'timestamp':0
     }
+    if(req.body.timestamp != null)
+        data.timestamp = req.body.timestamp;
     console.log('processInsert',data);
-    if(!req.session.user){               //到达/home路径首先判断是否已经登录
-        req.session.error = "请先登录"
-        res.redirect("/login");                //未登录则重定向到 /login 路径
+    if(!req.session.user){
+        req.session.error = "login in first"
+        res.redirect("/login");
     }
-
-    massgridrpc.importaddress(data,res,
-            function(req,res){
-                userDao.insertAddress(req,res,function(req,res){
-            res.json({code:0,msg:'insert successful'})
-            });
-        });
+    userDao.insertAddress(data,res,function(req,res){
+        res.json({code:0,msg:'insert successful'})
+    });
+});
+router.post('/processDelete', function(req, res) {
+    try {
+        base58Check.decode(req.body.removeaddress);
+    } catch (error) {
+        console.log("not base58 address");
+        res.json({code:1,msg:'address invailed'});
+        return;
+    }
+    var data = req.body.removeaddress;
+    console.log('processDelete',data);
+    if(!req.session.user){
+        req.session.error = "login in first"
+        res.redirect("/login");
+    }
+    userDao.deleteAddress(data,res,function(req,res){
+        res.json({code:0,msg:'delete successful'})
+    });
 
 });
 router.post('/processdata', function(req, res) {
     console.log(req.session.user);
-    if(!req.session.user){               //到达/home路径首先判断是否已经登录
-        req.session.error = "请先登录"
-        res.redirect("/login");                //未登录则重定向到 /login 路径
+    if(!req.session.user){
+        req.session.error = "login in first";
+        res.redirect("/login");
+        return;
     }
     userDao.queryAll('',res);
 });

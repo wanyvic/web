@@ -7,7 +7,7 @@ html(lang='en')
         link(rel='stylesheet', href='https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css', integrity='sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS', crossorigin='anonymous')
         link(rel='stylesheet', href='https://use.fontawesome.com/releases/v5.6.3/css/all.css', integrity='sha384-UHRtZLI+pbxtHCWp1t77Bi1L4ZtiqrqD80Kn4Z8NTSRyMA2Fd33n5dQ8lWUE00s/', crossorigin='anonymous')
         link(rel='stylesheet', href='https://unpkg.com/bootstrap-table@1.14.1/dist/bootstrap-table.min.css')
-        title Hello, Bootstrap Table!
+        title MassGrid admin!
         style.
             .content {
             margin: 50px auto;
@@ -56,13 +56,13 @@ html(lang='en')
                         #addAddressModal.modal-body
                             .form-horizontal
                                 .form-group
-                                    label.col-sm-2.control-label(for='wechat') wechat:*
-                                    .col-sm-10
-                                        input#wechat.form-control(type='text')
-                                .form-group
                                     label.col-sm-2.control-label(for='address') address:*
                                     .col-sm-10
                                         input#address.form-control(type='text')
+                                .form-group
+                                    label.col-sm-2.control-label(for='wechat') wechat:*
+                                    .col-sm-10
+                                        input#wechat.form-control(type='text')
                         .modal-footer
                             .center-block
                                 button#cancelAdd.btn.btn-default(type='button', data-dismiss='modal') 取消
@@ -76,13 +76,13 @@ html(lang='en')
                         #editAddressModal.modal-body
                             .form-horizontal
                                 .form-group
+                                    label.col-sm-2.control-label(for='editaddress') address:*
+                                    .col-sm-10
+                                        input#editaddress.form-control(type='text',disabled='true')
+                                .form-group
                                     label.col-sm-2.control-label(for='editwechat') wechat:*
                                     .col-sm-10
                                         input#editwechat.form-control(type='text')
-                                .form-group
-                                    label.col-sm-2.control-label(for='editaddress') address:*
-                                    .col-sm-10
-                                        input#editaddress.form-control(type='text')
                                 .form-group
                                     label.col-sm-2.control-label(for='edittimestamp') timestamp:*
                                     .col-sm-10
@@ -108,48 +108,42 @@ html(lang='en')
         script.
             var table = $('#table')
             table.bootstrapTable({
-            //- method: 'POST',
-            //- dataType: 'json',
-            //- url: '/admin/processdata',
             pagination: true,
-            ajax:function(request) {
-              $.ajax({
-                url:"./admin/processdata",
-                type:"POST",
-                dataType:"json",
-                data:{
-                  value:"hot",
-                  order:"asc"
-                },
-                success:function(data){
-                    console.log(data);
-                  request.success({
-                    //- total = data.total;
-                    //- row = data.rows;
-                  });
-                  $('#table').bootstrapTable('load', data);
-                },
-                error:function(error){
-                    console.log(error);
-                }
-              })
+            ajax: function(request) {
+                $.ajax({
+                    url:"./admin/processdata",
+                    type:"POST",
+                    dataType:"json",
+                    data:{
+                    value:"hot",
+                    order:"asc"
+                    },
+                    success:function(data){
+                        console.log(data);
+                    request.success({
+                        //- total = data.total;
+                        //- row = data.rows;
+                    });
+                    $('#table').bootstrapTable('load', data);
+                    },
+                    error:function(error){
+                        console.log(error);
+                    }
+                });
             },
             clickToSelect:true,
             height:700,
             search: true,
             columns: [{
-            field:'state',
-            checkbox:true
-            },{
-            field: 'wechat',
-            title: 'WeChat'
-            }, {
-            field: 'address',
-            title: 'WalletAddress'
-            }, {
-            field: 'timestamp',
-            title: 'Last Send Time'
-            }, ],
+                field: 'address',
+                title: 'WalletAddress'
+                }, {
+                field: 'wechat',
+                title: 'WeChat'
+                }, {
+                field: 'timestamp',
+                title: 'Last Send Time'
+            }],
             "pagingType": "full_numbers",
             "bSort": true,
             "language": {
@@ -214,22 +208,23 @@ html(lang='en')
                     if (wechat !== '' && address !== '') {
                         console.log('wechat: '+ wechat+ 'address: '+address);
                         $.ajax({
-                                type: "POST",
-                                url: "./admin/processInsert",
-                                dataType: "json",
-                                data: {
-                                    wechat:wechat,
-                                    address:address},
-                                success: function (data, msg) {
-                                    console.log(data,msg)
-                                    if(!data.code){
-                                        table.bootstrapTable('refresh')
-                                       }
-                                    else{
-                                        alert(data.result?'true':'false');
-                                    }
+                            type: "POST",
+                            url: "./admin/processInsert",
+                            dataType: "json",
+                            data: {
+                                wechat:wechat,
+                                address:address
+                                },
+                            success: function (data, msg) {
+                                console.log(data,msg)
+                                if(!data.code){
+                                    table.bootstrapTable('refresh')
                                 }
-                            });
+                                else{
+                                    alert('code: ' + data.code + ' msg: ' + data.msg);
+                                }
+                            }
+                        });
                     }
                 } else {
                     alert('请输入内容')
@@ -243,30 +238,42 @@ html(lang='en')
 
             $('#btn_edit').click(function () {
                 console.log('edit');
-                if (table.rows('.selected').data().length) {
+                if ($('#table .selected').length) {
+                    $('#editaddress').val($('#table .selected')[0].cells[0].innerHTML);
+                    $('#editwechat').val($('#table .selected')[0].cells[1].innerHTML);
+                    $('#edittimestamp').val($('#table .selected')[0].cells[2].innerHTML);
                     $("#editAddressInfo").modal()
-                    var rowData = table.rows('.selected').data()[0];
-                    var inputs = $("#editAddressModal").find('input')
-                    for (var i = 0; i < inputs.length; i++) {
-                        $(inputs[i]).val(rowData[i + 1])
-                    }
                 } else {
                     alert('请选择项目');
                 }
             });
-        
             $("#saveEdit").click(function() {
-                var editAddressName = $("#editAddressName").val()
-                var editAddressAuthor = $("#editAddressAuthor").val()
-                var editAddressPrice = $("#editAddressPrice").val()
-                var newRowData = [].concat(editAddressName, editAddressAuthor, editAddressPrice);
-                var tds = Array.prototype.slice.call($('.selected td'))
-                for (var i = 0; i < newRowData.length; i++) {
-                    if (newRowData[i] !== '') {
-                        tds[i + 1].innerHTML = newRowData[i];
-                    } else {
-                        alert(titles[i] + '内容不能为空')
-                    }
+                var address = $("#editaddress").val();
+                var wechat = $("#editwechat").val();
+                var timestamp = $("#edittimestamp").val();
+                if (wechat !== '' && address !== ''&& timestamp !== '') {
+                    console.log('wechat: '+ wechat+ 'address: '+address);
+                    $.ajax({
+                        type: "POST",
+                        url: "./admin/processInsert",
+                        dataType: "json",
+                        data: {
+                            wechat:wechat,
+                            address:address,
+                            timestamp:timestamp
+                            },
+                        success: function (data, msg) {
+                            console.log(data,msg)
+                            if(!data.code){
+                                table.bootstrapTable('refresh')
+                            }
+                            else{
+                                alert('code: ' + data.code + ' msg: ' + data.msg);
+                            }
+                        }
+                    });
+                } else {
+                alert('请输入内容')
                 }
             })
 
@@ -276,7 +283,7 @@ html(lang='en')
             });
 
             $('#btn_delete').click(function () {
-                if (table.rows('.selected').data().length) {
+                if ($('#table .selected').length) {
                     $("#deleteAddress").modal()
                 } else {
                     alert('请选择项目');
@@ -284,5 +291,21 @@ html(lang='en')
             });
 
             $('#delete').click(function () {
-                table.row('.selected').remove().draw(false);
+                var removeaddress = $('#table .selected')[0].cells[0].innerHTML;
+                $.ajax({
+                    type: "POST",
+                    url: "./admin/processDelete",
+                    dataType: "json",
+                    data: {
+                        removeaddress:removeaddress},
+                    success: function (data, msg) {
+                        console.log(data,msg)
+                        if(!data.code){
+                            table.bootstrapTable('refresh')
+                            }
+                        else{
+                            alert('code: ' + data.code + ' msg: ' + data.msg);
+                        }
+                    }
+                });
             });

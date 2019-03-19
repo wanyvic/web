@@ -3,30 +3,20 @@ var Long = require('mongodb').Long;
 var $conf = require('../conf/conf');
 var url = $conf.mongourl.url;
 
-// 向前台返回JSON方法的简单封装
-var jsonWrite = function (res, ret) {
-	if(typeof ret === 'undefined') {
-		res =JSON.stringify({
-			code:'1',
-			msg: 'require address and wechat name'
-		});
-	} else {
-		res = JSON.stringify(ret);
-	}
-};
-
 module.exports = {
 	insertAddress: function (req, res, next) {
-        console.log('insertAddress start');
+        console.log('insertAddress start',req);
 		var param = req;
 		if(param.address == null || param.wechat == null) {
-            res,json({code:1,msg:'require address and wechat name'});
+            res.json({code:1,msg:'require address and wechat name'});
 			return;
 		}
-		var addr ={'address': param.address,
-        'wechat' : param.wechat,
-		'timestamp': Long.fromNumber(0)};
 		try {
+            var addr ={
+                'address': param.address,
+                'wechat' : param.wechat,
+                'timestamp': Long.fromNumber(param.timestamp)
+                };
 			MongoClient.connect(url, function(err, db) {
 				if (err) throw err;
 				var dbo = db.db("massgrid");
@@ -40,60 +30,72 @@ module.exports = {
 			});
 		} catch (error) {
             res.json({code:2,msg:error});
+            return;
         }
-        next(req,res);
+        if(next)
+            next(req,res);
     },
-	delete: function (req, res, next) {
-		var param = req;
-		console.log(param);
-		if(param.address == null) {
-			jsonWrite(res, undefined);
-			return false;
+	deleteAddress: function (req, res, next) {
+		console.log(req);
+		if(req == null) {
+            res.json({code:1,msg:'require address'});
+            return;
 		}
 		try {
 			MongoClient.connect(url, function(err, db) {
 				if (err) throw err;
 				var dbo = db.db("massgrid");
-				var whereStr = {'address': param.address};  // 查询条件
+				var whereStr = {'address': req};  // 查询条件
 				dbo.collection("massgrid").deleteOne(whereStr, function(err, res) {
                     if (err) throw err;
-                    jsonWrite(res,{
-                        code:0,
-                        msg: 'deleteAddress success'
-                    });
-					console.log("address delete successful");
-					res.json({result:false})
+                    console.log("mongo address delete successful");
 					db.close();
 				});
 			});
 		} catch (error) {
-            jsonWrite(res,{
-            code:5,
-            msg: 'deleteAddress failed: '+error.error
-        });
+            res.json({code:2,msg:error});
+            return;
 		}
-		return true;
+        if(next)
+            next(req,res);
 	},
 	queryAll: function (req, res, next) {
 		try {
 			MongoClient.connect(url, function(err, db) {
-
 				if (err) throw err;
 				var dbo = db.db("massgrid");
 				dbo.collection("massgrid").find({}).toArray(function(err, result)  {
 					if (err) throw err;
-					var data = {'total':result.length,'rows':result};
-					res.json(data);
-					console.log("address find successful",data);
+					res.json({code:0,'total':result.length,'rows':result});
+					console.log("address queryAll successful");
 					db.close();
 				});
 			});
 		} catch (error) {
-            jsonWrite(res,{
-            code:6,
-            msg: 'queryAll failed: '+error.error
-        });
+            res.json({code:2,msg:error});
+            return;
 		}
-		return true;
+    },
+    findOne: function (req, res, next) {
+        if(req == null) {
+        res.json({code:1,msg:'require address'});
+        return;
+        }
+		try {
+			MongoClient.connect(url, function(err, db) {
+				if (err) throw err;
+                var dbo = db.db("massgrid");
+                var whereStr = {'address': req.address};
+				dbo.collection("massgrid").find(whereStr).toArray(function(err, result)  {
+					if (err) throw err;
+					console.log("address find successful");
+                    db.close();
+                    next(result,res);
+				});
+			});
+		} catch (error) {
+            res.json({code:2,msg:error});
+            return;
+        }
 	}
 };

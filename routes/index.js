@@ -3,67 +3,47 @@ var router = express.Router();
 var base58Check = require('base58-native').base58Check;
 var userDao = require('../dao/userDao');
 var massgridrpc = require('../dao/massgridrpc');
+var sendamount = require('../conf/conf').sendAmount.amount;
 /* GET home page. */
 router.get('/', function(req, res, next) {
-  res.render('index', { title: 'MassGrid' });
+  res.render('index', { title: 'MassGrid login' });
 });
 router.post('/processSendCoin', function(req, res) {
-  try {
-    base58Check.decode(req.body.address)
-  } catch (error) {
-    console.log("不是address")
-    res.redirect('/');
-  }
-  
-  var addr ={'address': req.body.address};
-  MongoClient.connect(url, function(err, db) {
-    if (err) throw err;
-    var dbo = db.db("massgrid");
-    dbo.collection("massgrid"). find(addr).toArray(function(err, result) { // 返回集合中所有数据
-        if (err) throw err;
-        db.close();
-        if(result.length)
-          SendCoin(result);
-    });
-  });
-  //处理
-  res.redirect('/');
-});
-function SendCoin(result) {
-  console.log(result);
-  bitcoin_rpc.call('getbalance', [result[0].wechat,0,true,true], function (err, res) {
-    if (err !== null) {
-      console.log('getblance error :( ' + err + ' ' + res.error)
-    } else {
-      console.log('getblance successful ',result[0].address,result[0].wechat,res.result);
-      if(res.result < 1001 && Long.fromNumber(new Date().getTime()) - result[0].timestamp > 24 * 3600 *1000 ) {
-        bitcoin_rpc.call('sendtoaddress', [result[0].address,10], function (err, res) {
-          if (err !== null) {
-            console.log('sendtoaddress error :( ' + err + ' ' + res.error)
-          } else { 
-            console.log('sendtoaddress successful ' + res.result); //txid
-            if(res.result.length == 64){
-              UpdateTimedb(result)
-            }
-            
-          } 
-        })
-      }
+    try {
+        base58Check.decode(req.body.address)
+    } catch (error) {
+        console.log("not base58 address");
+        res.json({code:1,msg:'address invailed'})
+        res.redirect('/');
+        return;
     }
-  })
-}
-function UpdateTimedb(result){
-  MongoClient.connect(url, function(err, db) {
-    if (err) throw err;
-    var dbo = db.db("massgrid");
-    var whereStr = {'address': result[0].address};  // 查询条件
-    var updateStr = {$set: { "timestamp" : Long.fromNumber(new Date().getTime())}};
-    dbo.collection("massgrid").updateOne(whereStr, updateStr, function(err, res) {
-      if (err) throw err;
-      console.log("timestamp update successful");
-      db.close();
+    var addr ={'address': req.body.address};
+    userDao.findOne(addr,res,function(result,res){
+        console.log('findOne: ',result);
+        if(result.length != 1){
+            res.json({code:2,msg:'not found this address'});
+            return;
+        }
+        if(new Date().getTime() - result[0].timestamp < 24 * 3600 * 1000 ){
+            res.json({code:9,msg:'time not allowed',time:result[0].timestamp});
+            return;
+        }
+        var param = {
+            'address':result[0].address,
+            'wechat':result[0].wechat,
+            'amount':sendamount
+        };
+        massgridrpc.sendtoaddress(param,res,function (req,res) {
+            var param2 = {
+                'address':param.address,
+                'wechat':param.wechat,
+                'timestamp':new Date().getTime()
+            };
+            userDao.insertAddress(param2,res,function (req,res) {
+                res.json({code:0,msg:'sendtoaddress successful'});
+            });
+        });
     });
-  });
-}
+});
 module.exports = router;
 
