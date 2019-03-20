@@ -17,7 +17,7 @@ module.exports = {
         try {
             massgrid_rpc.call('sendtoaddress', [address,Number(amount)], function (err, result) {
                 if (err) throw err;
-                if(result.result.length != 64){
+                if(result == null || result.result.length != 64){
                     res.json({code:10,msg:result.error});
                     return;
                 }
