@@ -13,7 +13,7 @@ router.post('/processSendCoin', function(req, res) {
         base58Check.decode(req.body.address)
     } catch (error) {
         console.log("not base58 address");
-        res.json({code:1,msg:'address invailed'})
+        res.json({code:1,msg:'not wallet import format address'})
         res.redirect('/');
         return;
     }
@@ -21,7 +21,7 @@ router.post('/processSendCoin', function(req, res) {
     userDao.findOne(addr,res,function(result,res){
         console.log('findOne: ',result);
         if(result.length != 1){
-            res.json({code:2,msg:'not found this address'});
+            res.json({code:2,msg:'the address not record'});
             return;
         }
         if(new Date().getTime() - result[0].timestamp < 24 * 3600 * 1000 ){

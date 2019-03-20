@@ -8,7 +8,7 @@ module.exports = {
         console.log('insertAddress start',req);
 		var param = req;
 		if(param.address == null || param.wechat == null) {
-            res.json({code:1,msg:'require address and wechat name'});
+            res.json({code:3,msg:'require address and wechat name'});
 			return;
         }
 		try {
@@ -29,7 +29,7 @@ module.exports = {
 				});
 			});
 		} catch (error) {
-            res.json({code:2,msg:error});
+            res.json({code:4,msg:error});
             return;
         }
         if(next)
@@ -39,7 +39,7 @@ module.exports = {
         console.log('insertTime start',req);
 		var param = req;
 		if(param.address == null || param.timestamp == null) {
-            res.json({code:1,msg:'require address'});
+            res.json({code:3,msg:'require address'});
 			return;
         }
 		try {
@@ -58,7 +58,7 @@ module.exports = {
 				});
 			});
 		} catch (error) {
-            res.json({code:2,msg:error});
+            res.json({code:5,msg:error});
             return;
         }
         if(next)
@@ -67,7 +67,7 @@ module.exports = {
 	deleteAddress: function (req, res, next) {
 		console.log(req);
 		if(req == null) {
-            res.json({code:1,msg:'require address'});
+            res.json({code:3,msg:'require address'});
             return;
 		}
 		try {
@@ -82,7 +82,7 @@ module.exports = {
 				});
 			});
 		} catch (error) {
-            res.json({code:2,msg:error});
+            res.json({code:6,msg:error});
             return;
 		}
         if(next)
@@ -101,13 +101,13 @@ module.exports = {
 				});
 			});
 		} catch (error) {
-            res.json({code:2,msg:error});
+            res.json({code:7,msg:error});
             return;
 		}
     },
     findOne: function (req, res, next) {
         if(req == null) {
-        res.json({code:1,msg:'require address'});
+        res.json({code:3,msg:'require address'});
         return;
         }
 		try {
@@ -123,7 +123,7 @@ module.exports = {
 				});
 			});
 		} catch (error) {
-            res.json({code:2,msg:error});
+            res.json({code:8,msg:error});
             return;
         }
 	}

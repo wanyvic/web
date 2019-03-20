@@ -49,7 +49,9 @@ html(lang='en')
                 button.btn.btn-default.dropdown-toggle(type='button', data-toggle='dropdown', aria-haspopup='true', aria-expanded='false')
                   | Give me tMGD
         .row(style='margin-top: 32px;')
-          .col-lg-6.col-lg-offset-3
+          .col-lg-8.col-lg-offset-3
+            h3
+                span#result.label.label-danger(for="result",style='visibility:hidden;vertical-align: middle') | result
         .row(style='margin-top: 32px;')
           .col-lg-8.col-lg-offset-3
             h3 如何工作？
@@ -69,16 +71,16 @@ html(lang='en')
                 data: {
                     address:address},
                 success: function (data, msg) {
-                    console.log(data,msg)
+                    $('#result').css('visibility','visible') ;
                     if(!data.code){
-                        alert('send Coin Successful' + data.msg);
+                        $('#result')[0].innerHTML = 'Send Coin Successful, msg:' + data.msg;
                         }
                     else if(data.code == 9){
                         var date = new Date(data.time + 24 * 3600 * 1000);
-                        alert('code: ' + data.code + ' msg: ' + data.msg + ' \nnext send time: ' + date.toLocaleString());
+                        $('#result')[0].innerHTML = 'msg: ' + data.msg + ', NextTime: ' + date.toLocaleString();
                     }
                     else{
-                        alert('code: ' + data.code + ' msg: ' + data.msg);
+                        $('#result')[0].innerHTML = 'error msg: ' + data.msg;
                     }
                 }
             });

@@ -11,19 +11,19 @@ module.exports = {
         var address = req.address;
         var amount = req.amount;
         if(wechat == null || address == null|| amount == null){
-            res.json({code:1,msg:'require address wechat and amount'});
+            res.json({code:3,msg:'require address wechat and amount'});
 			return;
         }
         try {
             massgrid_rpc.call('sendtoaddress', [address,Number(amount)], function (err, result) {
                 if (err) throw err;
                 if(result.result.length != 64){
-                    res.json({code:3,msg:result.error});
+                    res.json({code:10,msg:result.error});
                     return;
                 }
             });
         }catch (error) {
-            res.json({code:2,msg:error});
+            res.json({code:11,msg:error});
             return;
         }
         if(next)

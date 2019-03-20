@@ -19,7 +19,7 @@ router.post('/processInsert', function(req, res) {
         base58Check.decode(req.body.address);
     } catch (error) {
         console.log("not base58 address");
-        res.json({code:1,msg:'address invailed'});
+        res.json({code:1,msg:'not wallet import format address'})
         return;
     }
     var data = {
@@ -33,6 +33,7 @@ router.post('/processInsert', function(req, res) {
     if(!req.session.user){
         req.session.error = "login in first"
         res.redirect("/login");
+        return;
     }
     userDao.insertAddress(data,res,function(req,res){
         res.json({code:0,msg:'insert successful'})
@@ -43,7 +44,7 @@ router.post('/processDelete', function(req, res) {
         base58Check.decode(req.body.removeaddress);
     } catch (error) {
         console.log("not base58 address");
-        res.json({code:1,msg:'address invailed'});
+        res.json({code:1,msg:'not wallet import format address'})
         return;
     }
     var data = req.body.removeaddress;
@@ -51,6 +52,7 @@ router.post('/processDelete', function(req, res) {
     if(!req.session.user){
         req.session.error = "login in first"
         res.redirect("/login");
+        return;
     }
     userDao.deleteAddress(data,res,function(req,res){
         res.json({code:0,msg:'delete successful'})
