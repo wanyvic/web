@@ -21,12 +21,12 @@ module.exports = {
                     res.json({code:10,msg:result.error});
                     return;
                 }
+                if(next)
+                    next(req,res);
             });
         }catch (error) {
             res.json({code:11,msg:error});
             return;
         }
-        if(next)
-            next(req,res);
     }
 }
