@@ -286,7 +286,7 @@ html(lang='en')
                 if ($('#table .selected').length) {
                     $('#editaddress').val($('#table .selected')[0].cells[0].innerHTML);
                     $('#editwechat').val($('#table .selected')[0].cells[1].innerHTML);
-                    $('#edittimestamp').val(new Date().getTime() + 2 * 24 * 3600 * 1000);
+                    $('#edittimestamp').val(new Date().getTime() - 2 * 24 * 3600 * 1000);
                     $("#editAddressInfo").modal()
                 } else {
                     alert('请选择项目');
