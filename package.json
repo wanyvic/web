@@ -3,7 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "start": "node ./bin/www --exec babel-node --presets es2015,stage-2"
+    "start": "node ./bin/www --exec babel-node --presets es2015,stage-2",
+    "stop": "ps -ef | grep './bin/www' | grep -v grep | cut -c 9-15 | xargs sudo kill"
   },
   "dependencies": {
     "base58-native": "^0.1.4",
